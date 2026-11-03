@@ -88,11 +88,34 @@ def create_teacher(body:TeacherCreate, db: Session):
     return teacher
 
 #-----------Course
+# def create_course(body: CourseCreate, db: Session):
+#     course = Course(**body.model_dump())
+#     db.add(course)
+#     db.commit()
+#     db.refresh(course)
+#     return course
 def create_course(body: CourseCreate, db: Session):
-    course = Course(**body.model_dump())
+
+    teacher = db.query(Teacher).filter(
+        Teacher.id == body.teacher_id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher not found"
+        )
+
+    course = Course(
+        title=body.title,
+        fee=body.fee,
+        teacher_id=body.teacher_id
+    )
+
     db.add(course)
     db.commit()
     db.refresh(course)
+
     return course
 
 def get_all_courses(db):
@@ -136,16 +159,38 @@ def update_fee(enrollment_id: int, body: FeeUpdate, db: Session):
 
 
 #---------BATCH
-def create_batch(body:BatchCreate, db: Session):
-    course = db.query(course).get(body.course_id)
-    if not course:
-        raise HTTPException(status_code=404, detail= "Course not found")
+# def create_batch(body:BatchCreate, db: Session):
+#     course = db.query(course).get(body.course_id)
+#     if not course:
+#         raise HTTPException(status_code=404, detail= "Course not found")
     
-    batch = Batch(name = body.name, course_id = body.course_id)
-    db.add(Batch)
+#     batch = Batch(name = body.name, course_id = body.course_id)
+#     db.add(Batch)
+#     db.commit()
+#     db.refresh(batch)
+#     return Batch
+def create_batch(body, db):
+    course = db.query(Course).filter(
+        Course.id == body.course_id
+    ).first()
+
+    if not course:
+        raise HTTPException(
+            status_code=404,
+            detail="Course not found"
+        )
+
+    batch = Batch(
+        name=body.name,
+        course_id=body.course_id,
+        teacher_id=body.teacher_id
+    )
+
+    db.add(batch)
     db.commit()
     db.refresh(batch)
-    return Batch
+
+    return batch
 
 def get_all_batches(db):
     return db.query(Batch).all()

@@ -120,13 +120,19 @@ def delete_admin(
 ):
     return admincontroller.delete_admin(admin_id, db)
 
-
 @router.get("/students")
 def get_students(
     db: Session = Depends(get_db),
     admin=Depends(admin_only)
 ):
     return admincontroller.get_all_students(db)
+
+# @router.get("/students")
+# def get_students(
+#     db: Session = Depends(get_db),
+#     admin=Depends(admin_only)
+# ):
+#     return admincontroller.get_all_students(db)
 
 
 @router.get("/student/{student_id}")

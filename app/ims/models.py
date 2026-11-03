@@ -25,9 +25,14 @@ class Teacher(Base):
 
 class Course(Base):
     __tablename__ = "courses"
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
     fee = Column(Float, nullable=False)
+    teacher_id = Column(
+        Integer,
+        ForeignKey("teachers.id"),
+        nullable=False
+    )
 
 class Batch(Base):
     __tablename__ = "batches"

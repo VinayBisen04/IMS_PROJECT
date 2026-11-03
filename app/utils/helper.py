@@ -17,15 +17,48 @@ def create_access_token(body: dict):
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
+# def decode_token(token: str):
+#     try:
+#         return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+#     except jwt.PyJWTError:
+#         return None
 def decode_token(token: str):
     try:
-        return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    except jwt.PyJWTError:
+        return jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM]
+        )
+
+    except jwt.ExpiredSignatureError:
+        print("JWT ERROR: Token expired")
         return None
 
-def admin_only(credentials:HTTPAuthorizationCredentials = Depends(Security)):
+    except jwt.InvalidSignatureError:
+        print("JWT ERROR: Secret key mismatch")
+        return None
+
+    except jwt.PyJWTError as e:
+        print("JWT ERROR:", type(e).__name__, str(e))
+        return None
+
+# def admin_only(credentials:HTTPAuthorizationCredentials = Depends(Security)):
+#     token = credentials.credentials
+#     payload = decode_token(token)
+#     if not payload or payload.get("role") != "ADMIN":
+#         raise HTTPException(status_code=403, detail="Admins only")
+#     return payload
+
+def admin_only(credentials: HTTPAuthorizationCredentials = Depends(Security)):
     token = credentials.credentials
     payload = decode_token(token)
-    if not payload or payload.get("role") != "ADMIN":
+
+    print("JWT PAYLOAD:", payload)
+
+    if not payload:
+        raise HTTPException(status_code=403, detail="Invalid token")
+
+    if payload.get("role") != "ADMIN":
         raise HTTPException(status_code=403, detail="Admins only")
+
     return payload

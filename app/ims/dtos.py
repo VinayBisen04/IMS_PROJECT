@@ -31,6 +31,7 @@ class CourseCreate(BaseModel):
     fee: float
     teacher_id: int
 
+
 class CourseUpdate(BaseModel):
     title: Optional[str] = None
     fee: Optional[float] = None
@@ -52,6 +53,7 @@ class TeacherUpsert(BaseModel):
 class BatchCreate(BaseModel):
     name: str
     course_id: int
+    teacher_id: int
 
 
 class BatchTeacherUpdate(BaseModel):
